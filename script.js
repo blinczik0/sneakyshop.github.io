@@ -3,63 +3,147 @@ const grid = document.getElementById("productGrid");
 const homePage = document.getElementById("homePage");
 
 let cart = [];
+let products = []; // заполняется из kaifsmoke.json
+let catalogRaw = [];
 
-// SVG-изображения устройств (одноразка / под)
+// SVG по типу (одноразка / под)
 const svgDisposable = (color) => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200"><rect x="20" y="20" width="80" height="160" rx="8" fill="${color}" stroke="#333" stroke-width="2"/><rect x="35" y="40" width="50" height="80" rx="4" fill="#1a1a2e"/><circle cx="60" cy="170" r="8" fill="#2a2a4a"/></svg>`)}`;
 const svgPod = (color) => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 180"><rect x="15" y="10" width="70" height="140" rx="6" fill="${color}" stroke="#333" stroke-width="2"/><rect x="25" y="25" width="50" height="60" rx="4" fill="#1a1a2e"/><rect x="30" y="100" width="40" height="35" rx="3" fill="#252540"/></svg>`)}`;
 
-const products = [
-  // Одноразки
-  { name: "Geek Bar Pulse", c: "disposable", p: 45, img: svgDisposable("#00d4aa") },
-  { name: "Geek Bar Meloso Mini", c: "disposable", p: 35, img: svgDisposable("#ff6b9d") },
-  { name: "Geek Bar Razz", c: "disposable", p: 38, img: svgDisposable("#a855f7") },
-  { name: "Elf Bar BC5000", c: "disposable", p: 42, img: svgDisposable("#22c55e") },
-  { name: "Elf Bar 600", c: "disposable", p: 28, img: svgDisposable("#3b82f6") },
-  { name: "Elf Bar TE5000", c: "disposable", p: 40, img: svgDisposable("#f59e0b") },
-  { name: "Lost Mary OS5000", c: "disposable", p: 44, img: svgDisposable("#ec4899") },
-  { name: "Lost Mary QM600", c: "disposable", p: 32, img: svgDisposable("#8b5cf6") },
-  { name: "Lost Mary BM5000", c: "disposable", p: 43, img: svgDisposable("#06b6d4") },
-  { name: "Lost Mary MT15000", c: "disposable", p: 55, img: svgDisposable("#f97316") },
-  { name: "Funky Republic TI7000", c: "disposable", p: 48, img: svgDisposable("#14b8a6") },
-  { name: "SKE Crystal Bar", c: "disposable", p: 36, img: svgDisposable("#6366f1") },
-  { name: "HQD Cuvie Plus", c: "disposable", p: 30, img: svgDisposable("#e11d48") },
-  { name: "Puff Bar Plus", c: "disposable", p: 32, img: svgDisposable("#0ea5e9") },
-  { name: "RandM Tornado 7000", c: "disposable", p: 42, img: svgDisposable("#84cc16") },
-  { name: "Vozol Gear 10000", c: "disposable", p: 48, img: svgDisposable("#d946ef") },
-  { name: "Masking Aroma 10000", c: "disposable", p: 46, img: svgDisposable("#f43f5e") },
-  { name: "Crystal Bar 4000", c: "disposable", p: 34, img: svgDisposable("#2dd4bf") },
-  { name: "Elf Bar Pi7000", c: "disposable", p: 50, img: svgDisposable("#a3e635") },
-  { name: "Geek Bar Pulse Mini", c: "disposable", p: 38, img: svgDisposable("#fb923c") },
-  // Pod-системы
-  { name: "Vaporesso XROS 4", c: "pod", p: 165, img: svgPod("#4f46e5") },
-  { name: "Vaporesso XROS 3", c: "pod", p: 155, img: svgPod("#7c3aed") },
-  { name: "Vaporesso XROS 2", c: "pod", p: 140, img: svgPod("#2563eb") },
-  { name: "Uwell Caliburn G3", c: "pod", p: 175, img: svgPod("#059669") },
-  { name: "Uwell Caliburn A3", c: "pod", p: 145, img: svgPod("#0d9488") },
-  { name: "Uwell Caliburn X", c: "pod", p: 168, img: svgPod("#0f766e") },
-  { name: "SMOK Nord 5", c: "pod", p: 158, img: svgPod("#dc2626") },
-  { name: "SMOK Nord 4", c: "pod", p: 142, img: svgPod("#b91c1c") },
-  { name: "SMOK Novo 5", c: "pod", p: 135, img: svgPod("#991b1b") },
-  { name: "Voopoo Vinci 3", c: "pod", p: 152, img: svgPod("#4d7c0f") },
-  { name: "Voopoo Argus Pod", c: "pod", p: 138, img: svgPod("#15803d") },
-  { name: "Geekvape Aegis Pod", c: "pod", p: 148, img: svgPod("#0e7490") },
-  { name: "Geekvape Sonder U", c: "pod", p: 125, img: svgPod("#0369a1") },
-  { name: "Aspire Flexus Q", c: "pod", p: 132, img: svgPod("#6d28d9") },
-  { name: "Aspire R1", c: "pod", p: 118, img: svgPod("#7e22ce") },
-  { name: "Innokin Gozee Box", c: "pod", p: 145, img: svgPod("#be185d") },
-  { name: "Innokin Klypse", c: "pod", p: 128, img: svgPod("#9d174d") },
-  { name: "OXVA Xlim Pro", c: "pod", p: 155, img: svgPod("#1e40af") },
-  { name: "OXVA Xlim SQ", c: "pod", p: 135, img: svgPod("#1e3a8a") },
-  { name: "Vaporesso Eco Nano", c: "pod", p: 122, img: svgPod("#0c4a6e") },
-];
+// Цвета и опционально URL картинок по названию (ключ — нормализованное имя)
+const productColors = {
+  "ELF BAR BC 45000 5% NEW": "#22c55e",
+  "OXVA Xlim GO 2": "#4f46e5",
+  "ELF BAR TRIO 40000 5%": "#ec4899",
+  "ELF BAR RAYA D3 PRO 30000 5%": "#f59e0b",
+  "ELFBAR GH 33000 PRO 5%": "#06b6d4",
+  "Vaporesso Xros 4 mini": "#8b5cf6",
+  "ELFBAR MOONNIGHT 40000 5%": "#a855f7",
+  "ELFBAR RAYA D3 25000 5%": "#14b8a6",
+  "Vaporesso Xros Pro 2 NEW": "#e11d48",
+  "ELF BAR LUSH KING PRO 40000 5%": "#84cc16",
+  "ELF BAR ELFX Mini": "#0ea5e9",
+  "ELF BAR ELFX PRO": "#d946ef",
+  "Vaporesso Xros 5 Mini": "#6366f1",
+  "Vaporesso Xros 5": "#0d9488",
+  "Vaporesso Xros PRO": "#dc2626",
+  "ELFBAR ICE KING 30000 5%": "#2dd4bf",
+  "ELFBAR NIC KING 30000 5%": "#f97316",
+  "ELFBAR SOUR KING 30000 5%": "#a3e635",
+  "ELFBAR SWEET KING 30000 5%": "#fb923c",
+};
+
+// Реальные изображения товаров (PNG/SVG). Добавь сюда URL с Гугла по желанию — иначе используется SVG-заглушка выше.
+const productImageUrls = {
+  // Пример: "ELF BAR BC 45000 5% NEW": "https://example.com/elfbar-bc45000.png",
+};
+
+function normalizeName(s) {
+  return (s || "").trim().replace(/\s+/g, " ");
+}
+
+function getProductImage(name, type) {
+  const n = normalizeName(name);
+  if (productImageUrls[n]) return productImageUrls[n];
+  const color = productColors[n] || (type === "pod" ? "#4f46e5" : "#00d4aa");
+  return type === "Под" || type === "pod" ? svgPod(color) : svgDisposable(color);
+}
+
+function buildProductsFromCatalog(raw) {
+  const map = new Map(); // key: normalizedName|type
+  raw.forEach((row) => {
+    const name = normalizeName(row["Название"]);
+    const type = row["Тип"] === "Под" ? "pod" : "disposable";
+    const key = name + "|" + type;
+    const option = (row["Вкусы"] || "").trim();
+    if (!map.has(key)) {
+      map.set(key, {
+        name,
+        c: type,
+        p: type === "pod" ? 145 : 42,
+        img: getProductImage(name, row["Тип"]),
+        variants: [],
+      });
+    }
+    if (option && !map.get(key).variants.includes(option)) {
+      map.get(key).variants.push(option);
+    }
+  });
+  return Array.from(map.values());
+}
+
+function openVariantModal(productIndex) {
+  const product = products[productIndex];
+  if (!product) return;
+  const modal = document.getElementById("variantModal");
+  const titleEl = document.getElementById("variantModalTitle");
+  const subEl = document.getElementById("variantModalSub");
+  const optionsEl = document.getElementById("variantOptions");
+  const confirmBtn = document.getElementById("variantConfirmBtn");
+
+  titleEl.textContent = product.name;
+  subEl.textContent = product.c === "pod" ? "Выберите цвет" : "Выберите вкус";
+  optionsEl.innerHTML = "";
+  confirmBtn.style.display = "none";
+  confirmBtn.dataset.productIndex = String(productIndex);
+
+  let selectedOption = null;
+  product.variants.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "variant-option";
+    btn.textContent = opt;
+    btn.addEventListener("click", () => {
+      optionsEl.querySelectorAll(".variant-option").forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selectedOption = opt;
+      confirmBtn.style.display = "block";
+    });
+    optionsEl.appendChild(btn);
+  });
+
+  confirmBtn.onclick = () => {
+    if (!selectedOption) return;
+    addToCartWithVariant(productIndex, selectedOption);
+    closeVariantModal();
+  };
+
+  modal.classList.add("active");
+}
+
+function closeVariantModal() {
+  document.getElementById("variantModal").classList.remove("active");
+}
+
+function addToCartWithVariant(productIndex, option) {
+  const product = products[productIndex];
+  const fullName = product.name + " — " + option;
+  const item = {
+    name: fullName,
+    p: product.p,
+    img: product.img,
+    qty: 1,
+  };
+  const found = cart.find((x) => x.name === fullName);
+  if (found) found.qty++;
+  else cart.push(item);
+  updateCart();
+  const countEl = document.getElementById("headerCartCount");
+  if (countEl) {
+    countEl.classList.remove("bump");
+    void countEl.offsetWidth;
+    countEl.classList.add("bump");
+  }
+}
 
 function render(list) {
   grid.innerHTML = "";
   grid.classList.add("grid-visible");
   list.forEach((p, index) => {
+    const globalIndex = products.indexOf(p);
     const card = document.createElement("div");
     card.className = "card";
-    card.style.animationDelay = `${Math.min(index * 0.05, 0.6)}s`;
+    card.style.animationDelay = `${Math.min(index * 0.03, 0.5)}s`;
     card.innerHTML = `
       <div class="card-img-wrap">
         <img src="${p.img}" alt="${p.name}" loading="lazy">
@@ -67,7 +151,7 @@ function render(list) {
       <div class="info">
         <div class="card-name">${p.name}</div>
         <div class="price">${p.p} zł</div>
-        <button class="add" onclick="addToCart(${products.indexOf(p)})">В корзину</button>
+        <button class="add" onclick="openVariantModal(${globalIndex})">В корзину</button>
       </div>`;
     grid.appendChild(card);
   });
@@ -76,7 +160,7 @@ function render(list) {
 function showCategory(cat) {
   homePage.classList.remove("home-visible");
   homePage.style.display = "none";
-  const list = products.filter(p => p.c === cat);
+  const list = products.filter((p) => p.c === cat);
   render(list);
 }
 
@@ -91,21 +175,6 @@ function goHome() {
   homePage.classList.add("home-visible");
   grid.innerHTML = "";
   grid.classList.remove("grid-visible");
-}
-
-function addToCart(index) {
-  const item = products[index];
-  let found = cart.find(x => x.name === item.name);
-  if (found) found.qty++;
-  else cart.push({ ...item, qty: 1 });
-  updateCart();
-  // Микро-анимация счётчика
-  const countEl = document.getElementById("headerCartCount");
-  if (countEl) {
-    countEl.classList.remove("bump");
-    void countEl.offsetWidth;
-    countEl.classList.add("bump");
-  }
 }
 
 function removeFromCart(i) {
@@ -156,3 +225,19 @@ function checkout() {
   if (!cart.length) return alert("Корзина пуста");
   window.open(telegram);
 }
+
+// Загрузка каталога
+fetch("kaifsmoke.json")
+  .then((r) => r.json())
+  .then((data) => {
+    catalogRaw = data;
+    products = buildProductsFromCatalog(data);
+    updateCart();
+  })
+  .catch((err) => {
+    console.error("Ошибка загрузки kaifsmoke.json", err);
+    products = [
+      { name: "ELF BAR BC 45000 5% NEW", c: "disposable", p: 42, img: svgDisposable("#22c55e"), variants: ["Blue Razz Ice", "Lemon Lime"] },
+      { name: "Vaporesso Xros 4 mini", c: "pod", p: 145, img: svgPod("#8b5cf6"), variants: ["Black", "Ice Blue"] },
+    ];
+  });

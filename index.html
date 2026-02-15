@@ -22,6 +22,19 @@
 
 <div id="overlay" onclick="toggleCart()"></div>
 
+<div id="variantModal" class="variant-modal">
+  <div class="variant-modal-backdrop" onclick="closeVariantModal()"></div>
+  <div class="variant-modal-box">
+    <div class="variant-modal-header">
+      <h3 id="variantModalTitle">Выбор варианта</h3>
+      <button type="button" class="closeCart" onclick="closeVariantModal()">✕</button>
+    </div>
+    <p class="variant-modal-sub" id="variantModalSub">Вкус / цвет</p>
+    <div class="variant-options" id="variantOptions"></div>
+    <button type="button" class="add add-variant-btn" id="variantConfirmBtn" style="display:none">Добавить в корзину</button>
+  </div>
+</div>
+
 <div id="homePage" class="home home-visible">
   <h1>Выберите категорию</h1>
   <p class="sub">Одноразки и pod-системы — без жидкостей и картриджей</p>
@@ -58,6 +71,7 @@
       <ul>
         <li><a href="#" onclick="showCategory('disposable'); return false;">Одноразки</a></li>
         <li><a href="#" onclick="showCategory('pod'); return false;">Pod системы</a></li>
+        <li><a href="#" onclick="showAll(); return false;">Весь каталог</a></li>
       </ul>
     </div>
     <div class="footer-col">
