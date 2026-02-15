@@ -16,14 +16,27 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-// Рандомная картинка для каждого индекса (уникальная на товар)
-function getRandomImage(index) {
+const KAIFSMOKE_IMG_BASE = "https://www.kaifsmoke.com";
+
+// Фото с Kaifsmoke.com: по id варианта или продукта (если API отдал), иначе fallback
+function getProductImage(index, variationId, productId, name) {
+  if (variationId != null) {
+    return `${KAIFSMOKE_IMG_BASE}/storage/variations/${variationId}.webp`;
+  }
+  if (productId != null) {
+    return `${KAIFSMOKE_IMG_BASE}/storage/products/${productId}.webp`;
+  }
   return `https://picsum.photos/seed/${index}/400/400`;
 }
 
-function buildProductsFromCatalog(raw) {
+// Строим ключ для сопоставления с API: "Название|Вкус"
+function catalogKey(name, variant) {
+  return normalizeName(name) + "|" + (variant || "").trim();
+}
+
+function buildProductsFromCatalog(raw, apiProductMap) {
   const list = [];
-  const variantsMap = new Map(); // name -> variants[]
+  const variantsMap = new Map();
 
   raw.forEach((row, index) => {
     const name = normalizeName(row["Название"]);
@@ -31,6 +44,11 @@ function buildProductsFromCatalog(raw) {
     const variant = (row["Вкусы"] || "").trim();
     const displayName = variant ? name + " — " + variant : name;
     const p = type === "pod" ? 145 : 42;
+    const key = catalogKey(name, variant);
+    const apiInfo = apiProductMap ? apiProductMap.get(key) : null;
+    const variationId = apiInfo && apiInfo.variationId != null ? apiInfo.variationId : null;
+    const productId = apiInfo && apiInfo.productId != null ? apiInfo.productId : null;
+    const imgFromJson = (row["Изображение"] || "").trim();
 
     list.push({
       name,
@@ -38,7 +56,7 @@ function buildProductsFromCatalog(raw) {
       displayName,
       c: type,
       p,
-      img: getRandomImage(index),
+      img: imgFromJson || getProductImage(index, variationId, productId, name),
       index,
     });
 
@@ -56,6 +74,22 @@ function buildProductsFromCatalog(raw) {
   variantsByProduct = variantsMap;
 
   return list;
+}
+
+// Из ответа API Kaifsmoke строим карту: "Название|Вкус" -> { productId, variationId }
+function buildApiProductMap(apiProducts) {
+  const map = new Map();
+  if (!Array.isArray(apiProducts)) return map;
+  apiProducts.forEach((product) => {
+    const name = normalizeName(product.name);
+    const productId = product.id;
+    (product.variations || []).forEach((v) => {
+      const variant = (v.name || "").trim();
+      const key = catalogKey(name, variant);
+      map.set(key, { productId, variationId: v.id });
+    });
+  });
+  return map;
 }
 
 function openFlavorsModalByIndex(productIndex) {
@@ -119,9 +153,10 @@ function render(list) {
     card.className = "card";
     card.style.animationDelay = `${Math.min(index * 0.02, 0.4)}s`;
     const hasVariants = variantsByProduct.get(p.name) && variantsByProduct.get(p.name).length > 0;
+    const fallbackImg = `https://picsum.photos/seed/${p.index}/400/400`;
     card.innerHTML = `
       <div class="card-img-wrap">
-        <img src="${p.img}" alt="${escapeHtml(p.displayName)}" loading="lazy">
+        <img src="${p.img}" alt="${escapeHtml(p.displayName)}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImg}'">
       </div>
       <div class="info">
         <div class="card-name" ${hasVariants ? `onclick="openFlavorsModalByIndex(${globalIndex})" title="Показать все вкусы/цвета"` : ""}>${escapeHtml(p.displayName)}</div>
@@ -173,7 +208,7 @@ function updateCart() {
     const item = document.createElement("div");
     item.className = "cart-item";
     item.innerHTML = `
-      <img src="${p.img}" alt="">
+      <img src="${p.img}" alt="" onerror="this.onerror=null;this.src='https://picsum.photos/seed/${i}/200/200'">
       <div class="cart-item-info">
         <div class="cart-item-name">${p.name}</div>
         <div class="cart-item-price">${p.p} zł × ${p.qty}</div>
@@ -201,18 +236,30 @@ function checkout() {
   window.open(telegram);
 }
 
-fetch("kaifsmoke.json")
-  .then((r) => r.json())
-  .then((data) => {
-    products = buildProductsFromCatalog(data);
-    updateCart();
-  })
-  .catch((err) => {
-    console.error("Ошибка загрузки kaifsmoke.json", err);
-    products = [
-      { name: "ELF BAR BC 45000", displayName: "ELF BAR BC 45000 — Blue Razz Ice", variant: "Blue Razz Ice", c: "disposable", p: 42, img: getRandomImage(0), index: 0 },
-      { name: "Vaporesso Xros 4 mini", displayName: "Vaporesso Xros 4 mini — Black", variant: "Black", c: "pod", p: 145, img: getRandomImage(1), index: 1 },
-    ];
-    variantsByProduct.set("ELF BAR BC 45000", ["Blue Razz Ice", "Lemon Lime"]);
-    variantsByProduct.set("Vaporesso Xros 4 mini", ["Black", "Ice Blue"]);
-  });
+// Сначала пробуем загрузить каталог с Kaifsmoke.com (id товаров/вариантов для фото), затем локальный JSON
+function loadCatalog() {
+  const apiPromise = fetch(KAIFSMOKE_IMG_BASE + "/api/products")
+    .then((r) => r.json())
+    .then((apiProducts) => buildApiProductMap(apiProducts))
+    .catch(() => null);
+
+  const jsonPromise = fetch("kaifsmoke.json").then((r) => r.json());
+
+  Promise.all([apiPromise, jsonPromise])
+    .then(([apiProductMap, data]) => {
+      products = buildProductsFromCatalog(data, apiProductMap || new Map());
+      updateCart();
+    })
+    .catch((err) => {
+      console.error("Ошибка загрузки каталога", err);
+      products = [
+        { name: "ELF BAR BC 45000", displayName: "ELF BAR BC 45000 — Blue Razz Ice", variant: "Blue Razz Ice", c: "disposable", p: 42, img: getProductImage(0, null, null), index: 0 },
+        { name: "Vaporesso Xros 4 mini", displayName: "Vaporesso Xros 4 mini — Black", variant: "Black", c: "pod", p: 145, img: getProductImage(1, null, null), index: 1 },
+      ];
+      variantsByProduct.set("ELF BAR BC 45000", ["Blue Razz Ice", "Lemon Lime"]);
+      variantsByProduct.set("Vaporesso Xros 4 mini", ["Black", "Ice Blue"]);
+      updateCart();
+    });
+}
+
+loadCatalog();
