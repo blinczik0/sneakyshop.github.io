@@ -1,295 +1,23 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>SneakyVape</title>
-<style>
-/* === BASE === */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-body {
-  font-family: Arial, sans-serif;
-  background: url('background.png') no-repeat center center fixed;
-  background-size: cover;
-  color: #fff;
-  overflow-x: hidden;
-}
-
-/* === HEADER === */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 24px;
-  background: rgba(10, 10, 13, .95);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.logo {
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-  background: linear-gradient(90deg,#ff00cc,#00ffd5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.cart-icon {
-  position: relative;
-  cursor: pointer;
-  width: 26px;
-  height: 26px;
-}
-.cart-icon svg {
-  width: 100%;
-  height: 100%;
-  fill: #00ffd5;
-}
-.cart-count {
-  position: absolute;
-  top: -8px;
-  right: -10px;
-  background: #ff0044;
-  color: #fff;
-  font-size: 13px;
-  padding: 2px 7px;
-  border-radius: 50%;
-  font-weight: bold;
-}
-
-/* === HOME === */
-.home {
-  text-align: center;
-  padding: 70px 16px;
-}
-.home h1 {
-  font-size: 36px;
-  color: #00ffd5;
-  margin-bottom: 20px;
-}
-.catWrap {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.catBtn {
-  padding: 18px 32px;
-  font-size: 20px;
-  border-radius: 14px;
-  background: rgba(30, 30, 40, .85);
-  cursor: pointer;
-  transition: .3s;
-}
-.catBtn:hover {
-  transform: scale(1.05);
-  background: #13131c;
-}
-
-/* === PRODUCTS GRID === */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 18px;
-  padding: 20px;
-}
-.card {
-  background: rgba(25,25,35,.9);
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 0 10px rgba(0,255,213,.12);
-  transition: .3s;
-}
-.card img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-}
-.info {
-  padding: 10px;
-  text-align: center;
-}
-.price {
-  color: #00ffd5;
-  font-weight: bold;
-  margin: 6px 0;
-}
-.add {
-  background: linear-gradient(90deg,#ff00cc,#00ffd5);
-  border: none;
-  padding: 8px;
-  width: 100%;
-  border-radius: 8px;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  transition: .3s;
-}
-.add:hover {
-  background: linear-gradient(90deg,#00c2a5,#ff0099);
-  color: #fff;
-}
-
-/* === CART PANEL === */
-.cartPanel {
-  position: fixed;
-  top: 0;
-  right: -460px;
-  width: 460px;
-  height: 100%;
-  background: rgba(15,15,25,.98);
-  padding: 22px;
-  transition: .4s ease;
-  overflow-y: auto;
-  z-index: 99;
-}
-.cartPanel.active {
-  right: 0;
-}
-.cart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.cart-header h2 {
-  color: #00ffd5;
-  font-size: 24px;
-}
-.closeCart {
-  cursor: pointer;
-  background: #ff0044;
-  border: none;
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
-}
-.cart-list {
-  margin-top: 14px;
-}
-.cart-item {
-  display: flex;
-  gap: 10px;
-  background: rgba(255,255,255,.05);
-  border-radius: 10px;
-  margin-bottom: 12px;
-  padding: 8px;
-  align-items: center;
-}
-.cart-item img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-.cart-details {
-  flex: 1;
-}
-.cart-details .item-name {
-  font-size: 16px;
-  font-weight: 500;
-}
-.cart-details .item-price {
-  font-size: 15px;
-  color: #00ffd5;
-}
-.qty-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.qty-controls button {
-  background: #ff0044;
-  border: none;
-  color: #fff;
-  font-size: 16px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.qty-controls span {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-/* === TOTAL + CHECKOUT === */
-.cart-footer {
-  margin-top: 18px;
-  border-top: 1px solid #444;
-  padding-top: 14px;
-}
-.total-label {
-  font-size: 18px;
-  font-weight: bold;
-  color: #00ffd5;
-}
-.total-price {
-  font-size: 20px;
-  font-weight: bold;
-  text-align: right;
-}
-.checkout {
-  background: linear-gradient(90deg,#ff00cc,#00ffd5);
-  border: none;
-  padding: 14px;
-  border-radius: 10px;
-  color: #000;
-  font-size: 18px;
-  margin-top: 12px;
-  width: 100%;
-  cursor: pointer;
-  transition: .3s;
-}
-.checkout:hover {
-  background: linear-gradient(90deg,#00c2a5,#ff0099);
-  color: #fff;
-}
-
-/* === FOOTER === */
-.footer {
-  background: rgba(10,0,30,.9);
-  padding: 30px 20px;
-  margin-top: 60px;
-}
-.footer-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
-  gap: 18px;
-}
-.footer-col h3 {
-  border-left: 4px solid #00ffd0;
-  padding-left: 6px;
-  margin-bottom: 8px;
-}
-.footer-bottom {
-  text-align:center;
-  font-size:14px;
-  margin-top:12px;
-}
-
-/* === MOBILE === */
-@media(max-width:600px){
-  .grid {
-    grid-template-columns: 1fr 1fr;
-    padding: 12px;
-  }
-  .cartPanel {
-    width: 100%;
-  }
-}
-</style>
+  <meta charset="UTF-8">
+  <title>SneakyVape</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
   <div class="logo" onclick="goHome()">SneakyVape</div>
   <div class="cart-icon" onclick="toggleCart()">
-    <svg viewBox="0 0 24 24"><path d="M7 4h-2l-3 9v2h4l1.68 4.84c.14.41.52.68.96.68h8.72c.44 0 .82-.27.96-.68l1.68-4.84h4v-2l-3-9h-2v-2h-12v2zm0 2h10l2.25 7h-14.5l2.25-7zm1 12c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm8 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+    <svg viewBox="0 0 24 24">
+      <path d="M7 4h-2l-3 9v2h4l1.68 4.84c.14.41.52.68.96.68h8.72c.44 0 .82-.27.96-.68l1.68-4.84h4v-2l-3-9h-2v-2h-12v2zm0 2h10l2.25 7h-14.5l2.25-7zm1 12c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm8 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+    </svg>
     <div class="cart-count" id="headerCartCount">0</div>
   </div>
 </header>
+
+<div id="overlay" onclick="toggleCart()"></div>
 
 <div id="homePage" class="home">
   <h1>Выберите категорию</h1>
@@ -301,9 +29,7 @@ header {
 </div>
 
 <div class="grid" id="productGrid"></div>
-<div class="spacer"></div>
 
-<!-- CART PANEL -->
 <div class="cartPanel" id="cartPanel">
   <div class="cart-header">
     <h2>Корзина</h2>
@@ -317,133 +43,17 @@ header {
   </div>
 </div>
 
-<script>
-const telegram="https://t.me/your_telegram"
-const grid=document.getElementById("productGrid")
-const homePage=document.getElementById("homePage")
-let cart = [];
-
-const base = [
-  {name:"Geek Bar Pulse",c:"disposable",p:120,img:"https://cdn.shopify.com/s/files/1/0583/5810/4213/products/geekbar.jpg"},
-  {name:"Elf Bar BC5000",c:"disposable",p:95,img:"https://cdn.shopify.com/s/files/1/0583/5810/4213/products/elfbar.jpg"},
-  {name:"Lost Mary OS5000",c:"disposable",p:99,img:"https://cdn.shopify.com/s/files/1/0583/5810/4213/products/lostmary.jpg"},
-  {name:"Raz TN9000",c:"disposable",p:115,img:"https://cdn.shopify.com/s/files/1/0583/5810/4213/products/raz.jpg"},
-  {name:"Hyde IQ",c:"disposable",p:110,img:"https://cdn.shopify.com/s/files/1/0583/5810/4213/products/hyde.jpg"},
-  {name:"Vaporesso XROS 3",c:"pod",p:160,img:"https://cdn.shopify.com/s/files/1/0583/5810/4213/products/xros.jpg"},
-  {name:"Uwell Caliburn G3",c:"pod",p:170,img:"https://cdn.shopify.com/s/files/1/0583/5810/4213/products/g3.jpg"},
-  {name:"Voopoo Argus P1",c:"pod",p:180,img:"https://cdn.shopify.com/s/files/1/0583/5810/4213/products/argus.jpg"},
-  {name:"OXVA Xlim Pro",c:"pod",p:175,img:"https://cdn.shopify.com/s/files/1/0583/5810/4213/products/xlim.jpg"},
-  {name:"SMOK Novo 5",c:"pod",p:150,img:"https://cdn.shopify.com/s/files/1/0583/5810/4213/products/novo.jpg"}
-];
-
-const products=[]
-while(products.length<80){
-  let b=base[products.length%base.length]
-  products.push({...b,name:b.name+" "+(products.length+1)})
-}
-
-function render(list){
-  grid.innerHTML=""
-  list.forEach(p=>{
-    grid.innerHTML+=`
-    <div class="card">
-      <img src="${p.img}">
-      <div class="info">
-        <div>${p.name}</div>
-        <div class="price">${p.p} zł</div>
-        <button class="add" onclick="addToCart(${JSON.stringify(p)})">В корзину</button>
-      </div>
-    </div>`;
-  })
-}
-
-function showCategory(cat){
-  homePage.style.display="none"
-  render(products.filter(p=>p.c===cat))
-}
-function showAll(){
-  homePage.style.display="none"
-  render(products)
-}
-function goHome(){
-  homePage.style.display="block"
-  grid.innerHTML=""
-}
-
-// CART LOGIC
-function addToCart(item){
-  let found = cart.find(x => x.name === item.name);
-  if(found){ found.qty++ }
-  else { cart.push({...item, qty:1}) }
-  updateCart()
-}
-
-function removeFromCart(index){
-  cart.splice(index,1)
-  updateCart()
-}
-
-function changeQty(i, delta){
-  cart[i].qty += delta;
-  if(cart[i].qty < 1) cart[i].qty = 1;
-  updateCart()
-}
-
-function updateCart(){
-  const list = document.getElementById("cartList");
-  list.innerHTML = "";
-  let total=0;
-  cart.forEach((p,i)=>{
-    total += p.p * p.qty;
-    list.innerHTML += `
-    <div class="cart-item">
-      <img src="${p.img}">
-      <div class="cart-details"> 
-        <div class="item-name">${p.name}</div>
-        <div class="item-price">${p.p} zł</div>
-        <div class="qty-controls">
-          <button onclick="changeQty(${i},-1)">-</button>
-          <span>${p.qty}</span>
-          <button onclick="changeQty(${i},1)">+</button>
-        </div>
-      </div>
-      <button class="remove-btn" onclick="removeFromCart(${i})">×</button>
-    </div>`;
-  })
-  document.getElementById("totalPrice").innerText = total + " zł";
-  document.getElementById("headerCartCount").innerText = cart.reduce((a,b)=>a+b.qty,0);
-}
-
-function toggleCart(){
-  document.getElementById("cartPanel").classList.toggle("active")
-}
-
-function checkout(){
-  if(!cart.length) return alert("Корзина пуста")
-  window.open(telegram)
-}
-
-</script>
-
 <footer class="footer">
   <div class="footer-container">
     <div class="footer-col">
       <h2 class="logo">SneakyVape</h2>
-      <p>Оригинальные вейп‑товары по лучшим ценам для Европы.</p>
+      <p>Оригинальные вейп-товары по лучшим ценам для Европы.</p>
     </div>
     <div class="footer-col">
       <h3>Каталог</h3>
       <ul>
         <li>Одноразки</li>
         <li>Pod системы</li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h3>Информация</h3>
-      <ul>
-        <li>Доставка</li>
-        <li>Оплата</li>
-        <li>FAQ</li>
       </ul>
     </div>
     <div class="footer-col">
@@ -454,5 +64,6 @@ function checkout(){
   <div class="footer-bottom">© 2026 SneakyVape</div>
 </footer>
 
+<script src="script.js"></script>
 </body>
 </html>
