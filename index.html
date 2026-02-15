@@ -22,16 +22,15 @@
 
 <div id="overlay" onclick="toggleCart()"></div>
 
-<div id="variantModal" class="variant-modal">
+<div id="variantModal" class="variant-modal" aria-hidden="true">
   <div class="variant-modal-backdrop" onclick="closeVariantModal()"></div>
   <div class="variant-modal-box">
     <div class="variant-modal-header">
-      <h3 id="variantModalTitle">Выбор варианта</h3>
+      <h3 id="variantModalTitle">Вкусы / цвета</h3>
       <button type="button" class="closeCart" onclick="closeVariantModal()">✕</button>
     </div>
-    <p class="variant-modal-sub" id="variantModalSub">Вкус / цвет</p>
+    <p class="variant-modal-sub" id="variantModalSub"></p>
     <div class="variant-options" id="variantOptions"></div>
-    <button type="button" class="add add-variant-btn" id="variantConfirmBtn" style="display:none">Добавить в корзину</button>
   </div>
 </div>
 
